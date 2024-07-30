@@ -4,7 +4,9 @@ import styled from 'styled-components';
 
 function Recipe() {
     let params = useParams();
-    const [details, setDetails] = useState({});
+    const [details, setDetails] = useState({
+        extendedIngredients: []
+    });
     const [activeTap, setActiveTap] = useState('instructions')
 
     const fetchDetails = useCallback(async() => {
@@ -43,7 +45,7 @@ function Recipe() {
                     </div>
                 )}
 
-                {activeTap === "ingredients" && (
+                {details.extendedIngredients && (
                     <ul>
                         {details.extendedIngredients.map((ingredient) => (
                             <li key={ingredient.id} >{ingredient.original}</li>
