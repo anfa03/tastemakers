@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components';
 
@@ -6,46 +6,53 @@ function Recipe() {
     let params = useParams();
     const [details, setDetails] = useState({});
     const [activeTap, setActiveTap] = useState('instructions')
-    const fetchDetails = async()=>{
+
+    const fetchDetails = useCallback(async() => {
         const data = await fetch(`https://api.spoonacular.com/recipes/${params.name}/information?apiKey=${process.env.REACT_APP_API_KEY}`);
         const detaildata = await data.json();
         setDetails(detaildata);
-    }
-    useEffect(()=>{
+    }, [params.name])
+
+    useEffect(() => {
         fetchDetails();
-    },[params.name]);
+    }, [fetchDetails])
 
-  return (
-    <DetailWrapper>
-        <div>
-            <h2>{details.title}</h2>
-            <img src={details.image} alt={details.title} />
-        </div>
-        <info>
-            <Button
-             className={activeTap==='instructions' ? 'active' : ''} 
-             onClick={()=>setActiveTap("instructions")}>Instructions
-             </Button>
-            <Button
-             className={activeTap==='ingredients' ? 'active' : ''} 
-             onClick={()=>setActiveTap("ingredients")} >Ingredients
-             </Button>
-            {activeTap=== "instructions" && ( 
-                <div>
-                <h3 dangerouslySetInnerHTML={{__html: details.sumary}} ></h3>
-                <h3 dangerouslySetInnerHTML={{__html: details.instructions}} ></h3>
-            </div>)}
+    return (
+        <DetailWrapper>
+            <div>
+                <h2>{details.title}</h2>
+                <img src={details.image} alt={details.title} />
+            </div>
+            <Info>
+                <Button
+                    className={activeTap === 'instructions' ? 'active' : ''}
+                    onClick={() => setActiveTap("instructions")}
+                >
+                    Instructions
+                </Button>
+                <Button
+                    className={activeTap === 'ingredients' ? 'active' : ''}
+                    onClick={() => setActiveTap("ingredients")}
+                >
+                    Ingredients
+                </Button>
+                {activeTap === "instructions" && (
+                    <div>
+                        <h3 dangerouslySetInnerHTML={{ __html: details.summary }} ></h3>
+                        <h3 dangerouslySetInnerHTML={{ __html: details.instructions }} ></h3>
+                    </div>
+                )}
 
-            {activeTap=== "ingredients" && (
-                <ul>
-                {details.extendedIngredients.map((ingredient)=>(
-                    <li key={ingredient.id} >{ingredient.original}</li>
-                ))}
-            </ul>)};
-        </info>
-    </DetailWrapper>
-  
-  )
+                {activeTap === "ingredients" && (
+                    <ul>
+                        {details.extendedIngredients.map((ingredient) => (
+                            <li key={ingredient.id} >{ingredient.original}</li>
+                        ))}
+                    </ul>
+                )}
+            </Info>
+        </DetailWrapper>
+    )
 }
 
 const DetailWrapper = styled.div`
@@ -60,10 +67,14 @@ const DetailWrapper = styled.div`
     h2{
     margin-bottom: 2rem;
     }
+    h3{
+    margin-left: 2rem;
+    }
 
     li{
     font-size: 1.2rem;
     line-height: 2.5rem;
+    margin-left: 2rem;
     }
 
     ul{
